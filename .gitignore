@@ -33,19 +33,48 @@ ENV/
 *.swo
 *~
 .DS_Store
+.claude/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+*.ipynb
 
 # Output directories
 data_output/
 results/
-data/*.pickle
+data/
+*.pickle
+*.npy
 
 # Temporary files
 *.log
 *.tmp
 .cache/
+
+# Old research files (not part of main tool)
+mygraphs.py
+myrdfs.py
+analyze_rdfs_data.py
+plot_a_walk.py
+random_walk_hypercube.py
+rdfs_hypercube.py
+export_results.py
+summary_analysis.py
+generalised_petersen.py
+gnp_graphs.py
+immediate_neighbours.py
+immediate_neighbours_laplacian.py
+test_refactored_code.py
+test_cli_automated.py
+
+# Internal development documentation
+CLAUDE.md
+CODE_STYLE_UPDATE.md
+PROJECT_STATUS.md
+
+# Excel files
+*.xlsx
+*.xls
 
 # Keep directory structure
 !data/.gitkeep
