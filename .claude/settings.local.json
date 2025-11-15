@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//mnt/c/Users/mahes/Desktop/Ashoka/**)",
+      "Bash(cd /mnt/c/Users/mahes/Desktop/Ashoka/Capstone project)",
+      "Bash(python3 -c \"import sys; print(''Python version:'', sys.version)\")",
+      "Bash(tree -L 2 -I '__pycache__|.ipynb_checkpoints')",
+      "Bash(pip install matplotlib scipy numpy -q)",
+      "Bash(python3 -m pip install matplotlib scipy numpy -q)",
+      "Bash(python -m pip --version)",
+      "Bash(python -m pip list)",
+      "Read(//usr/bin/**)",
+      "Bash(python3.12 -m pip install matplotlib scipy numpy --quiet)",
+      "Bash(cat \"/mnt/c/Users/mahes/Desktop/Ashoka/Capstone project/My data/mygraphs.py\")",
+      "Bash(cat \"/mnt/c/Users/mahes/Desktop/Ashoka/Capstone project/My data/myrdfs.py\")",
+      "Bash(cat \"/mnt/c/Users/mahes/Desktop/Ashoka/Capstone project/My data/rdfs_hypercube.ipynb\")",
+      "Bash(cat \"/mnt/c/Users/mahes/Desktop/Ashoka/Capstone project/My data/rdfs_hypercube.py\")",
+      "Bash(python3 rdfs_hypercube.py)",
+      "Bash(python3 export_results.py)",
+      "Bash(python3 summary_analysis.py)",
+      "Bash(cat \"/mnt/c/Users/mahes/Desktop/Ashoka/Capstone project/My data/random_walk_hypercube.py\")",
+      "Bash(mkdir:*)",
+      "Bash(tree:*)",
+      "Bash(python3:*)",
+      "Bash(cat:*)",
+      "Bash(chmod:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
