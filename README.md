@@ -278,27 +278,6 @@ This project was developed as part of a capstone research project at Ashoka Univ
 **Version:** 0.6.0
 **Status:** Production-ready for academic research and publication
 
-## Citation
-
-If you use this tool in your research, please cite:
-
-```
-DFS Graph Analyzer v0.6.0
-Venkat Mahesh Mandava
-Ashoka University, 2025
-https://github.com/theking7415/capstone-project-dfs-analyzer
-```
-
-## License
-
-MIT License - See LICENSE file for details
-
-## Author
-
-**Venkat Mahesh Mandava**
-Ashoka University
-Capstone Project 2025
-
 ---
 
-For detailed documentation, see the docs listed above or visit the GitHub repository.
+For detailed documentation, see the files listed in the Documentation section above.
