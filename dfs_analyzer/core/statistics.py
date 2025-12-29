@@ -2,7 +2,7 @@
 Statistical analysis utilities for DFS experiments.
 
 Provides functions for analyzing discovery number distributions
-and validating the (n-1)/2 conjecture.
+and analyzing DFS behavior.
 """
 
 from typing import Any
@@ -42,14 +42,14 @@ def compute_overall_std(summary_stats: dict[Any, Any]) -> float:
     return np.std(all_means)
 
 
-def validate_conjecture(
+def validate_result(
     num_vertices: int, observed_mean: float, tolerance: float = 0.01
 ) -> dict[str, Any]:
     """
-    Validates the (n-1)/2 conjecture for a graph.
+    Validates the expected behavior for a graph.
 
     Compares observed mean against theoretical (n-1)/2 value.
-    Determines if conjecture holds within tolerance.
+    Determines if result is valid within tolerance.
 
     Args:
         num_vertices: Specifies total number of vertices in graph.
@@ -83,13 +83,13 @@ def format_validation_result(validation: dict[str, Any]) -> str:
     Formats validation results as human-readable string.
 
     Args:
-        validation: Contains dictionary returned by validate_conjecture().
+        validation: Contains dictionary returned by validate_result().
 
     Returns:
         Formatted string with validation details.
     """
     # Determines status symbol based on validation result
-    status = "✓ VALID" if validation["is_valid"] else "✗ INVALID"
+    status = "[OK] VALID" if validation["is_valid"] else "[FAIL] INVALID"
     # Builds formatted output lines
     lines = [
         f"Theoretical (n-1)/2: {validation['theoretical_value']:.4f}",

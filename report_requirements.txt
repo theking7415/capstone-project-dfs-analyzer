@@ -1,0 +1,16 @@
+    Every report  should cover the following:
+        Title (with name, ID, supervisor, date)
+        Acknowledgement, if any
+        Certificate by the Supervisor (to be signed on successful defence)
+        Table of Contents
+        Introduction
+        Background and Motivation
+        Literature Survey (state-of-the-art) – Gap Analysis, Research Questions etc.
+        Problem Statement / Objectives
+        Scope, Methodology, and Design – Architecture, HLD / LLD, if applicable
+        Work Done – Implementations, Challenges, Mitigations, etc.
+        Results and Discussions
+        Conclusions (should highlight contribution)
+        Extensions and Future Work
+        References
+        Publications / Communications, if any

@@ -114,33 +114,12 @@ dfs_analyzer/
 - **Vertices**: 2^d binary tuples (e.g., `(0,1,0)` for d=3)
 - **Edges**: Connect vertices differing by exactly 1 bit
 - **Properties**: d-regular, symmetric
-- **Tested**: Dimensions 3-15 (8 to 32,768 vertices)
+- **Tested**: Dimensions 3-10 (8 to 1,024 vertices)
 
-#### Generalized Petersen GP(n,k)
-- **Vertices**: 2n vertices in two rings (outer and inner)
-- **Edges**: Ring connections plus skip-k spokes
-- **Properties**: 3-regular, symmetric
-- **Tested**: n=3-20, various k values
-
-#### Triangular Lattice
-- **Vertices**: rows × cols as (q, r) coordinates
-- **Edges**: 6 neighbors per vertex (hexagonal coordination)
-- **Properties**: 6-regular, symmetric, torus topology
-- **Tested**: Up to 50×50 (2,500 vertices)
-
-#### Torus Grid
-- **Vertices**: rows × cols as (row, col) coordinates
-- **Edges**: 4 neighbors per vertex (up, down, left, right)
-- **Properties**: 4-regular, symmetric, torus topology
-- **Tested**: Up to 50×50 (2,500 vertices)
-
-### Exploratory Analysis
-
-#### G(n,p) Random Graphs
-- **Vertices**: n labeled vertices
-- **Edges**: Each edge appears with probability p
-- **Properties**: NOT regular or symmetric
-- **Purpose**: Comparative analysis with regular graphs
+### Coming Soon
+- Generalized Petersen graphs GP(n,k)
+- Erdős-Rényi random graphs G(n,p)
+- 2D grid graphs
 
 ## Results
 

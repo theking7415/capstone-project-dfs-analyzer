@@ -19,6 +19,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+.pytest_cache/
 
 # Virtual environments
 venv/
@@ -43,34 +44,84 @@ ENV/
 data_output/
 results/
 data/
-*.pickle
-*.npy
 
-# Temporary files
+# LaTeX files (all)
+*.tex
+*.pdf
+*.aux
 *.log
-*.tmp
-.cache/
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.synctex(busy)
+*.bbl
+*.blg
+*.bcf
+*.run.xml
 
-# Old research files (not part of main tool)
-mygraphs.py
-myrdfs.py
-analyze_rdfs_data.py
-plot_a_walk.py
-random_walk_hypercube.py
-rdfs_hypercube.py
-export_results.py
-summary_analysis.py
+# Analysis output files
+*.png
+*.csv
+*.npy
+*.pickle
+
+# Archive/installer files
+*.tar.gz
+*.zip
+Miniconda*.sh
+
+# Internal development documentation
+CLAUDE.md
+*_PROPOSAL.md
+CODE_STYLE_UPDATE.md
+PROJECT_STATUS.md
+CURRENT_STATUS.md
+*_SUMMARY.md
+*_ANALYSIS.md
+*_UPDATE.md
+*_FIXES.md
+CANCELLATION_FEATURE.md
+
+# Temporary analysis scripts
+analyze_*.py
+debug_*.py
+diagnose_*.py
+compare_*.py
+find_*.py
+formula_*.py
+minimal_*.py
+profile_*.py
+regenerate_*.py
+verify_*.py
+benchmark_*.py
+remove_*.py
+
+# Old batch/research scripts
+run_batch.py
+run_*_hypercube.py
+run_hypercube_*.py
+run_*d.py
+run_*_safe.py
 generalised_petersen.py
 gnp_graphs.py
 immediate_neighbours.py
 immediate_neighbours_laplacian.py
-test_refactored_code.py
-test_cli_automated.py
+mygraphs.py
+myrdfs.py
+export_results.py
 
-# Internal development documentation
-CLAUDE.md
-CODE_STYLE_UPDATE.md
-PROJECT_STATUS.md
+# Temporary files
+*.tmp
+.cache/
+
+# HPC job outputs
+*.slurm.out
+*.slurm.err
+slurm-*.out
 
 # Excel files
 *.xlsx
@@ -79,3 +130,7 @@ PROJECT_STATUS.md
 # Keep directory structure
 !data/.gitkeep
 !examples/.gitkeep
+# Comment review documentation
+COMMENT_REVIEW_SUMMARY.md
+# Correctness verification documentation
+CORRECTNESS_VERIFICATION.md

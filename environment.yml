@@ -1,0 +1,32 @@
+# Conda environment file for DFS Graph Analyzer
+# Includes graph-tool for high-performance DFS operations
+#
+# Installation:
+#   conda env create -f environment.yml
+#   conda activate dfs-analyzer
+#
+# Usage:
+#   python run_analyzer.py  # CLI interface
+#   python run_gui.py       # Web GUI interface
+
+name: dfs-analyzer
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  # Python version
+  - python>=3.10
+
+  # Core scientific computing
+  - numpy>=1.24.0
+  - scipy>=1.10.0
+  - matplotlib>=3.7.0
+  - networkx>=3.0
+
+  # High-performance graph library (C++ backend)
+  - graph-tool>=2.45
+
+  # Web GUI
+  - streamlit>=1.28.0
