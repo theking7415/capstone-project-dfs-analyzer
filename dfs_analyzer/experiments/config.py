@@ -12,8 +12,8 @@ class ExperimentConfig:
     Configuration for a DFS analysis experiment.
 
     Attributes:
-        graph_type: Type of graph to analyze (hypercube, petersen, triangular, torus, hexagonal, complete, ndgrid, gnp).
-        dimension: Dimension parameter for the graph (e.g., d for hypercube, n for gnp).
+        graph_type: Type of graph to analyze (hypercube, petersen, triangular, torus, hexagonal, complete, ndgrid, gnp, randomreg).
+        dimension: Dimension parameter for the graph (e.g., d for hypercube, n for gnp/randomreg).
         num_samples: Number of RDFS runs to perform.
         rng_seed: Random number generator seed for reproducibility.
         output_dir: Directory to save results (default: "data_output").
@@ -22,7 +22,7 @@ class ExperimentConfig:
         save_detailed_stats: Whether to save detailed_stats.txt (default: False).
         save_csv: Whether to save data.csv (default: False).
         export_formats: Additional export formats (json, pickle) (default: ['pickle']).
-        petersen_k: Skip parameter k for Petersen graphs.
+        petersen_k: Skip parameter k for Petersen graphs, or degree d for randomreg graphs.
         lattice_rows: Number of rows for triangular lattice, torus grid, or hexagonal lattice.
         lattice_cols: Number of columns for triangular lattice, torus grid, or hexagonal lattice.
         grid_size: Number of points per dimension for ndgrid (n-dimensional torus grid).
@@ -58,10 +58,10 @@ class ExperimentConfig:
 
     def __post_init__(self):
         """Validate configuration after initialization."""
-        if self.graph_type not in ["hypercube", "petersen", "triangular", "torus", "hexagonal", "complete", "ndgrid", "gnp"]:
+        if self.graph_type not in ["hypercube", "petersen", "triangular", "torus", "hexagonal", "complete", "ndgrid", "gnp", "randomreg"]:
             raise ValueError(
                 f"Unsupported graph type: {self.graph_type}. "
-                f"Currently supported: hypercube, petersen, triangular, torus, hexagonal, complete, ndgrid, gnp"
+                f"Currently supported: hypercube, petersen, triangular, torus, hexagonal, complete, ndgrid, gnp, randomreg"
             )
 
         if self.graph_type == "hypercube":
@@ -96,6 +96,15 @@ class ExperimentConfig:
                 raise ValueError("gnp_p must be specified for G(n,p) random graphs")
             if not (0 < self.gnp_p < 1):
                 raise ValueError(f"Edge probability p must be in (0, 1), got {self.gnp_p}")
+        elif self.graph_type == "randomreg":
+            if self.dimension < 2:
+                raise ValueError("Random regular graph requires at least 2 vertices (n >= 2)")
+            if self.petersen_k is None:
+                raise ValueError("petersen_k (degree) must be specified for random regular graphs")
+            if self.petersen_k < 2 or self.petersen_k >= self.dimension:
+                raise ValueError(f"Degree d must be in range [2, n-1] where n={self.dimension}")
+            if (self.dimension * self.petersen_k) % 2 != 0:
+                raise ValueError(f"n*d must be even for d-regular graphs. Got n={self.dimension}, d={self.petersen_k}, product={self.dimension * self.petersen_k}")
 
         if self.num_samples < 1:
             raise ValueError("Number of samples must be at least 1")
@@ -142,6 +151,11 @@ class ExperimentConfig:
             num_vertices = self.dimension
             expected_degree = (num_vertices - 1) * self.gnp_p
             return f"G(n,p) Random Graph: n={num_vertices}, p={self.gnp_p:.3f} ({num_vertices} vertices, expected degree {expected_degree:.1f})"
+        elif self.graph_type == "randomreg":
+            num_vertices = self.dimension
+            degree = self.petersen_k
+            num_edges = (num_vertices * degree) // 2
+            return f"Random {degree}-Regular Graph (n={num_vertices}, degree={degree}, {num_edges} edges)"
         return f"{self.graph_type} (dim={self.dimension})"
 
     def get_auto_experiment_name(self) -> str:
@@ -167,6 +181,8 @@ class ExperimentConfig:
             return f"ndgrid-{self.dimension}d-{self.grid_size}^{self.dimension}-{self.num_samples}-samples"
         elif self.graph_type == "gnp":
             return f"gnp-n{self.dimension}-p{self.gnp_p:.3f}-{self.num_samples}-samples"
+        elif self.graph_type == "randomreg":
+            return f"randomreg-n{self.dimension}-d{self.petersen_k}-{self.num_samples}-samples"
         return f"{self.graph_type}-{self.dimension}-{self.num_samples}-samples"
 
     def to_dict(self) -> dict:

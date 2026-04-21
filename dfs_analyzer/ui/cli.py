@@ -15,9 +15,9 @@ from dfs_analyzer.experiments.runner import ExperimentRunner
 def print_banner():
     """Print the application banner."""
     print("\n" + "=" * 70)
-    print("DFS GRAPH ANALYZER".center(70))
+    print("RANDOM DFS GRAPH ANALYZER".center(70))
     print("=" * 70)
-    print("Validating the expected behavior for symmetric regular graphs")
+    print("Studying randomized DFS behaviour on symmetric regular graphs")
     print("=" * 70 + "\n")
 
 
@@ -27,9 +27,10 @@ def print_menu():
     print("MAIN MENU")
     print("=" * 70)
     print("1. Run new experiment")
-    print("2. Help & Documentation")
-    print("3. About")
-    print("4. Exit")
+    print("2. Analysis Tools")
+    print("3. Help & Documentation")
+    print("4. About")
+    print("5. Exit")
     print("=" * 70)
 
 
@@ -228,67 +229,7 @@ def select_output_options() -> dict:
         sys.exit(0)
 
 
-def get_recommended_samples(graph_type: str, dimension: int, num_vertices: int) -> int:
-    """
-    Get recommended sample size based on graph type.
-
-    Uses proportional scaling with standardized samples per vertex:
-    - Hypercubes: 2000 samples per vertex (all dimensions)
-    - Petersen graphs: 1000 samples per vertex (constant degree 3)
-    - Triangular lattice: 1000 samples per vertex (constant degree 6)
-    - Torus grid: 1000 samples per vertex (constant degree 4)
-    - Hexagonal lattice: 1000 samples per vertex (constant degree 3, graphene)
-
-    Statistical validity: 2000 samples/vertex gives SE ≈ σ/44.7 and 95% CI ≈ ±0.04
-
-    Args:
-        graph_type: Type of graph ("hypercube", "petersen", "triangular", or "torus").
-        dimension: Dimension parameter (d for hypercube, n for Petersen, rows for triangular/torus).
-        num_vertices: Number of vertices in the graph.
-
-    Returns:
-        Recommended sample count.
-    """
-    if graph_type == "hypercube":
-        # Standardized at 2000 samples per vertex for all dimensions
-        # Balances statistical rigor (SE ≈ σ/44.7) with computational efficiency
-        # Ensures consistent precision across all hypercube experiments
-        samples_per_vertex = 2000
-
-        recommended = int(samples_per_vertex * num_vertices)
-        return recommended
-    elif graph_type == "petersen":
-        # Petersen graphs have constant degree 3, lower complexity
-        samples_per_vertex = 1000
-        return max(500, int(samples_per_vertex * num_vertices))
-    elif graph_type == "triangular":
-        # Triangular lattice has constant degree 6, similar complexity to Petersen
-        samples_per_vertex = 1000
-        return max(1000, int(samples_per_vertex * num_vertices))
-    elif graph_type == "torus":
-        # Torus grid has constant degree 4, similar complexity to Petersen/triangular
-        samples_per_vertex = 1000
-        return max(1000, int(samples_per_vertex * num_vertices))
-    elif graph_type == "hexagonal":
-        # Hexagonal lattice has constant degree 3 (same as Petersen), graphene structure
-        samples_per_vertex = 1000
-        return max(1000, int(samples_per_vertex * num_vertices))
-    elif graph_type == "complete":
-        # Complete graphs have degree n-1, high connectivity but simple structure
-        samples_per_vertex = 1000
-        return max(500, int(samples_per_vertex * num_vertices))
-    elif graph_type == "ndgrid":
-        # N-dimensional grids have constant degree 2d, similar complexity to lattices
-        samples_per_vertex = 1000
-        return max(1000, int(samples_per_vertex * num_vertices))
-    elif graph_type == "gnp":
-        # Random graphs have variable degree depending on p, use conservative estimate
-        samples_per_vertex = 2000
-        return max(1000, int(samples_per_vertex * num_vertices))
-    else:
-        # Default fallback
-        samples_per_vertex = 1000
-        return max(500, int(samples_per_vertex * num_vertices))
+# Removed get_recommended_samples() - using fixed suggestions instead
 
 
 def run_gnp_batch_experiment():
@@ -446,8 +387,9 @@ def run_new_experiment():
     print("2. Immediate Neighbors - Only vertices adjacent to start")
     print("3. Opposite Vertex - Diagonally opposite vertex (hypercube only)")
     print("4. Custom Vertex Pair - Specify start and target vertices")
+    print("5. Three-Vertex Distribution - Full histograms for 3 specific vertices")
 
-    analysis_type = get_user_choice([1, 2, 3, 4])
+    analysis_type = get_user_choice([1, 2, 3, 4, 5])
 
     if analysis_type == 1:
         print("\nSelected: Full Graph Analysis")
@@ -458,9 +400,12 @@ def run_new_experiment():
     elif analysis_type == 3:
         print("\nSelected: Opposite Vertex")
         focus = "opposite"
-    else:
+    elif analysis_type == 4:
         print("\nSelected: Custom Vertex Pair")
         focus = "custom"
+    else:
+        print("\nSelected: Three-Vertex Distribution")
+        focus = "three_vertex"
 
     # Step 0b: Analysis method (now RDFS only)
     print("\n--- Analysis Method ---")
@@ -478,6 +423,22 @@ def run_new_experiment():
         graph_type = "hypercube"
         print("\nNote: Opposite vertex analysis only available for hypercubes")
         print("Selected: Hypercube")
+    elif focus == "three_vertex":
+        print("1. Hypercube")
+        print("2. Triangular Lattice")
+        print("3. Torus Grid")
+        print("4. Hexagonal Lattice")
+        print("5. Generalized Petersen")
+        print("6. Complete Graph")
+        print("7. N-Dimensional Grid")
+        print("8. G(n,p) Random Graph")
+        print("9. Random d-Regular Graph")
+
+        graph_choice = get_user_choice([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        graph_type_map = {1: "hypercube", 2: "triangular", 3: "torus", 4: "hexagonal",
+                          5: "petersen", 6: "complete", 7: "ndgrid", 8: "gnp", 9: "randomreg"}
+        graph_type = graph_type_map[graph_choice]
+        print(f"\nSelected: {graph_type}")
     elif focus == "custom":
         # Custom vertex pair supports hypercube, petersen, triangular, torus, hexagonal
         print("1. Hypercube")
@@ -512,8 +473,9 @@ def run_new_experiment():
         print("6. Complete Graph")
         print("7. N-Dimensional Grid (3D-10D)")
         print("8. G(n,p) Random Graph")
+        print("9. Random d-Regular Graph")
 
-        graph_choice = get_user_choice([1, 2, 3, 4, 5, 6, 7, 8])
+        graph_choice = get_user_choice([1, 2, 3, 4, 5, 6, 7, 8, 9])
 
         if graph_choice == 1:
             graph_type = "hypercube"
@@ -536,9 +498,12 @@ def run_new_experiment():
         elif graph_choice == 7:
             graph_type = "ndgrid"
             print("\nSelected: N-Dimensional Grid")
-        else:
+        elif graph_choice == 8:
             graph_type = "gnp"
             print("\nSelected: G(n,p) Random Graph")
+        else:
+            graph_type = "randomreg"
+            print("\nSelected: Random d-Regular Graph")
 
     # Step 2: Get graph parameters
     print("\n--- Graph Parameters ---")
@@ -696,6 +661,32 @@ def run_new_experiment():
         if gnp_p < (2 * np.log(num_vertices) / num_vertices):
             print(f"  [WARNING] Warning: Low edge probability may result in disconnected graph")
             print(f"  Recommended: p >= {(2 * np.log(num_vertices) / num_vertices):.3f} for likely connectivity")
+    elif graph_type == "randomreg":
+        dimension = get_integer_input(
+            "Enter n (number of vertices, n >= 2): ", min_val=2, max_val=1000
+        )
+        degree = get_integer_input(
+            "Enter degree d (2 <= d < n, must make n*d even): ", min_val=2, max_val=dimension-1
+        )
+
+        # Validates n*d is even (required for d-regular graphs)
+        if (dimension * degree) % 2 != 0:
+            print(f"\n[ERROR] n*d must be even. Got n={dimension}, d={degree}, product={dimension*degree}")
+            print(f"Try: even n with any d, or odd n with even d")
+            return None
+
+        petersen_k = degree  # Store degree in petersen_k for compatibility
+        lattice_rows = None
+        lattice_cols = None
+        grid_size = None
+        gnp_p = None
+        num_vertices = dimension
+        num_edges = (num_vertices * degree) // 2
+
+        print(f"\nRandom {degree}-Regular Graph: n={num_vertices}, degree={degree}")
+        print(f"  Total edges: {num_edges}")
+        print(f"  Structure: Random (no geometric constraints)")
+        print(f"  Reproducible: Uses fixed seed for consistency")
 
     # Step 2b: Get start and target vertices (only for custom mode)
     start_vertex = None
@@ -886,16 +877,74 @@ def run_new_experiment():
                 except Exception as e:
                     print(f"Error: {e}")
 
+    # Three-vertex vertex selection
+    three_vertices = []
+    three_labels   = []
+    if focus == "three_vertex":
+        print("\n--- Three-Vertex Selection ---")
+        print("Choose 3 vertices by coordinate/label.")
+        print("Tip: pick one near vertex (small BFS layer), one mid, one far.\n")
+        for i in range(3):
+            print(f"Vertex {i+1} of 3:")
+            if graph_type == "hypercube":
+                print(f"  Enter as {dimension} comma-separated bits, e.g. 0,0,0,0,0")
+                while True:
+                    try:
+                        raw = input(f"  Vertex {i+1}: ").strip()
+                        bits = tuple(int(b.strip()) for b in raw.split(','))
+                        if len(bits) != dimension or not all(b in (0, 1) for b in bits):
+                            print(f"  Need exactly {dimension} bits (0 or 1).")
+                            continue
+                        three_vertices.append(bits)
+                        break
+                    except ValueError:
+                        print("  Invalid input.")
+            elif graph_type in ("triangular", "torus", "hexagonal"):
+                print(f"  Enter as row,col  (row 0-{lattice_rows-1}, col 0-{lattice_cols-1})")
+                while True:
+                    try:
+                        raw = input(f"  Vertex {i+1} (row,col): ").strip()
+                        r, c = (int(x.strip()) for x in raw.split(','))
+                        if not (0 <= r < lattice_rows and 0 <= c < lattice_cols):
+                            print("  Out of range.")
+                            continue
+                        three_vertices.append((r, c))
+                        break
+                    except (ValueError, TypeError):
+                        print("  Invalid input.")
+            elif graph_type == "petersen":
+                print(f"  Enter as ring,index  (ring=outer/inner, index 0-{dimension-1})")
+                while True:
+                    try:
+                        raw = input(f"  Vertex {i+1} (ring,index): ").strip()
+                        parts = [p.strip() for p in raw.split(',')]
+                        ring  = parts[0].lower()
+                        idx   = int(parts[1])
+                        if ring not in ('outer', 'inner') or not (0 <= idx < dimension):
+                            print("  Invalid. Use outer/inner and a valid index.")
+                            continue
+                        three_vertices.append((ring, idx))
+                        break
+                    except (ValueError, IndexError):
+                        print("  Invalid input.")
+            else:
+                # integer-labeled vertices (complete, ndgrid, gnp, randomreg)
+                v = get_integer_input(f"  Vertex {i+1} (0-{num_vertices-1}): ",
+                                      min_val=0, max_val=num_vertices - 1)
+                three_vertices.append(v)
+            label = input(f"  Label for vertex {i+1} (e.g. 'L=1'): ").strip() or f'Vertex {i+1}'
+            three_labels.append(label)
+
     # Step 3: Get sample size
     print("\n--- Sampling Configuration ---")
-    recommended = get_recommended_samples(graph_type, dimension, num_vertices)
-    print(f"Recommended samples for {num_vertices} vertices:")
-    print(f"  Quick test:    {max(1000, recommended // 10)}")
-    print(f"  Standard:      {recommended}")
-    print(f"  High accuracy: {recommended * 2}")
+    print(f"Graph has {num_vertices} vertices")
+    print("Suggested sample sizes:")
+    print(f"  Quick test:    1000-5000")
+    print(f"  Standard:      10000-50000")
+    print(f"  High accuracy: 100000+")
 
     num_samples = get_integer_input(
-        f"\nEnter number of samples (recommended: {recommended}): ", min_val=100
+        f"\nEnter number of samples: ", min_val=100
     )
 
     # Step 4: Output options
@@ -942,6 +991,9 @@ def run_new_experiment():
     elif graph_type == "gnp":
         expected_degree = (num_vertices - 1) * gnp_p
         print(f"Graph:          G(n,p) Random Graph: n={num_vertices}, p={gnp_p:.3f} (expected degree {expected_degree:.1f})")
+    elif graph_type == "randomreg":
+        num_edges = (num_vertices * petersen_k) // 2
+        print(f"Graph:          Random {petersen_k}-Regular Graph ({num_vertices} vertices, {num_edges} edges)")
     else:
         print(f"Graph:          {graph_type} ({num_vertices} vertices)")
     print(f"Samples:        {num_samples}")
@@ -1127,6 +1179,77 @@ def run_new_experiment():
             traceback.print_exc()
             return
 
+    elif focus == "three_vertex":
+        # Three-vertex distribution analysis
+        from dfs_analyzer.core.graphs import (Hypercube, GeneralizedPetersen,
+            TriangularLattice, TorusGrid, HexagonalLattice,
+            CompleteGraph, NDGrid, RandomRegularGraph)
+        from dfs_analyzer.core.gnp_graph import generate_connected_gnp
+        from dfs_analyzer.experiments.three_vertex_runner import ThreeVertexRunner
+
+        if graph_type == "hypercube":
+            graph = Hypercube(dimension)
+        elif graph_type == "petersen":
+            graph = GeneralizedPetersen(dimension, petersen_k)
+        elif graph_type == "triangular":
+            graph = TriangularLattice(lattice_rows, lattice_cols)
+        elif graph_type == "torus":
+            graph = TorusGrid(lattice_rows, lattice_cols)
+        elif graph_type == "hexagonal":
+            graph = HexagonalLattice(lattice_rows, lattice_cols)
+        elif graph_type == "complete":
+            graph = CompleteGraph(dimension)
+        elif graph_type == "ndgrid":
+            graph = NDGrid(dimension, grid_size)
+        elif graph_type == "gnp":
+            print(f"Generating connected G({dimension}, {gnp_p:.3f}) graph...")
+            graph = generate_connected_gnp(dimension, gnp_p, rng_seed=rng_seed)
+        else:
+            graph = RandomRegularGraph(n=dimension, degree=petersen_k, seed=rng_seed)
+
+        last_percent = -1
+        def progress_callback(current, total):
+            nonlocal last_percent
+            percent = int(100 * current / total)
+            if percent != last_percent or current == total:
+                bar_length = 40
+                filled = int(bar_length * current / total)
+                bar = "█" * filled + "░" * (bar_length - filled)
+                print(f"\rProgress: [{bar}] {percent}% ({current}/{total})",
+                      end="", flush=True)
+                last_percent = percent
+
+        runner = ThreeVertexRunner()
+        try:
+            tv_result = runner.run(
+                graph=graph,
+                vertices=three_vertices,
+                labels=three_labels,
+                n_samples=num_samples,
+                rng_seed=rng_seed,
+                output_dir=output_dir,
+                graph_name=config.get_graph_description() if hasattr(config, 'get_graph_description') else graph_type,
+                progress_callback=progress_callback,
+            )
+            print("\n")
+        except KeyboardInterrupt:
+            print("\n\n" + "=" * 70)
+            print("EXPERIMENT CANCELLED")
+            print("=" * 70)
+            return
+        except Exception as e:
+            print(f"\n\nError: {e}")
+            import traceback
+            traceback.print_exc()
+            return
+
+        print("\n" + "=" * 70)
+        print("THREE-VERTEX DISTRIBUTION COMPLETE")
+        print("=" * 70)
+        print(f"Plot saved to: {output_dir}/three_vertex_distributions.png")
+        input("\nPress Enter to continue...")
+        return
+
     else:
         # Full graph analysis
         # Progress callback for RDFS
@@ -1185,6 +1308,288 @@ def run_new_experiment():
     # choice == 3 returns to main menu
 
 
+def _select_experiment_dir(output_dir="data_output"):
+    """List recent experiments that have layer data and let user pick one."""
+    from pathlib import Path
+    data_path = Path(output_dir)
+    if not data_path.exists():
+        print(f"\n[ERROR] '{output_dir}' directory not found.")
+        return None
+
+    experiments = sorted(
+        [d for d in data_path.iterdir()
+         if d.is_dir() and (d / 'layer_statistics_bfs.csv').exists()],
+        reverse=True
+    )
+    if not experiments:
+        print("\n[ERROR] No experiment data found. Run a Full Graph Analysis first.")
+        return None
+
+    show = experiments[:20]
+    print("\nAvailable experiments:")
+    for i, exp in enumerate(show, 1):
+        print(f"  {i}. {exp.name}")
+    if len(experiments) > 20:
+        print(f"  ... and {len(experiments) - 20} more (showing most recent 20)")
+
+    choice = get_integer_input(f"\nSelect experiment (1-{len(show)}): ",
+                               min_val=1, max_val=len(show))
+    return str(show[choice - 1])
+
+
+def analysis_tools_menu():
+    """Display and handle analysis tools submenu."""
+    import subprocess
+    import os
+    from pathlib import Path
+
+    while True:
+        print("\n" + "=" * 70)
+        print("ANALYSIS TOOLS")
+        print("=" * 70)
+        print("--- Formula & Comparison Tools ---")
+        print("1. Formula Predictions (Hypercube)")
+        print("2. BFS vs DFS Comparison")
+        print("3. Confidence Intervals")
+        print("4. Visualize Formula System")
+        print("5. Validate Formulas")
+        print("6. Layer Exclusion Analysis")
+        print("--- Post-Experiment Analyses (need existing data) ---")
+        print("7. Deviation Analysis (cubic polynomial fit)")
+        print("8. Sigmoid Model Fitting (L / sqrt(L) / log(L))")
+        print("9. Layer Variance Analysis (within-layer spread)")
+        print("---")
+        print("10. Back to Main Menu")
+        print("=" * 70)
+
+        choice = get_user_choice([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+
+        if choice == 10:
+            return
+
+        # Choices 7-9 use integrated Python modules (no external scripts needed)
+        if choice in (7, 8, 9):
+            try:
+                data_dir = _select_experiment_dir()
+                if data_dir is None:
+                    input("\nPress Enter to continue...")
+                    continue
+
+                graph_name = Path(data_dir).name
+
+                if choice == 7:
+                    print("\n" + "=" * 70)
+                    print("DEVIATION ANALYSIS")
+                    print("=" * 70)
+                    print(f"Fitting cubic polynomial to layer deviations from (n-1)/2...")
+                    from dfs_analyzer.core.deviation_analysis import run_deviation_analysis
+                    fig, result, layers, means, n = run_deviation_analysis(
+                        data_dir, graph_name=graph_name, output_dir=data_dir)
+                    r = result
+                    print(f"\nCubic coefficients:")
+                    print(f"  a = {r['a']:.6e}")
+                    print(f"  b = {r['b']:.6e}")
+                    print(f"  c = {r['c']:.6e}")
+                    print(f"  d = {r['d']:.6e}")
+                    print(f"  R² = {r['r_squared']:.4f}")
+                    print(f"\nPlot saved to: {data_dir}/deviation_analysis.png")
+
+                elif choice == 8:
+                    print("\n" + "=" * 70)
+                    print("SIGMOID MODEL FITTING")
+                    print("=" * 70)
+                    print("Fitting sigmoid A/(1+exp(-k·f(L))) with f = L, √L, log(L)...")
+                    from dfs_analyzer.core.sigmoid_fitting import run_sigmoid_fitting
+                    best, results, fig, layers, means, n = run_sigmoid_fitting(
+                        data_dir, graph_name=graph_name, output_dir=data_dir)
+                    print(f"\nResults:")
+                    for name, r in results.items():
+                        if r['success']:
+                            star = '  ← BEST' if name == best else ''
+                            print(f"  {name:10s}  A={r['A']:.0f}  k={r['k']:.4f}  R²={r['r2']:.4f}{star}")
+                        else:
+                            print(f"  {name:10s}  (fit failed)")
+                    print(f"\nPlot saved to: {data_dir}/sigmoid_fitting.png")
+
+                elif choice == 9:
+                    print("\n" + "=" * 70)
+                    print("LAYER VARIANCE ANALYSIS")
+                    print("=" * 70)
+                    print("Computing within-layer std dev and CV per BFS layer...")
+                    from dfs_analyzer.core.layer_variance import run_layer_variance_analysis
+                    result = run_layer_variance_analysis(
+                        data_dir, graph_name=graph_name, output_dir=data_dir)
+                    L, stds, cvs = result['layers'], result['stds'], result['cvs']
+                    print(f"\nLayer   Std Dev   CV (%)")
+                    print("-" * 30)
+                    for l, s, cv in zip(L[:10], stds[:10], cvs[:10]):
+                        print(f"  {int(l):4d}   {s:7.2f}   {cv:6.2f}")
+                    if len(L) > 10:
+                        print(f"  ... ({len(L)} layers total)")
+                    print(f"\nPlot saved to: {data_dir}/layer_variance.png")
+
+            except FileNotFoundError as e:
+                print(f"\n[ERROR] {e}")
+            except Exception as e:
+                print(f"\n[ERROR] {e}")
+                import traceback
+                traceback.print_exc()
+            input("\nPress Enter to continue...")
+            continue
+
+        # Check if we're in the correct directory (for script-based tools 1-6)
+        base_dir = Path.cwd()
+        if not (base_dir / "demo_formula_prediction.py").exists():
+            # Try parent directory
+            if (base_dir.parent / "demo_formula_prediction.py").exists():
+                base_dir = base_dir.parent
+            else:
+                print("\n⚠️  Error: Analysis scripts not found in current directory.")
+                print("Please run this CLI from the project root directory.")
+                input("\nPress Enter to continue...")
+                continue
+
+        try:
+            if choice == 1:
+                print("\n" + "=" * 70)
+                print("FORMULA PREDICTIONS - HYPERCUBE")
+                print("=" * 70)
+                print("\nThis demonstrates the general formula for predicting")
+                print("layer-specific mean discovery numbers in hypercubes.")
+                print("\nExample: 14D hypercube, Layer 6")
+                print("\nRunning analysis...")
+                print("=" * 70 + "\n")
+
+                result = subprocess.run(
+                    ["python3", "demo_formula_prediction.py"],
+                    cwd=str(base_dir),
+                    capture_output=False
+                )
+
+                if result.returncode == 0:
+                    print("\n✓ Analysis complete!")
+                else:
+                    print("\n⚠️  Analysis encountered an error.")
+
+            elif choice == 2:
+                print("\n" + "=" * 70)
+                print("BFS VS DFS COMPARISON")
+                print("=" * 70)
+                print("\nCompares BFS (breadth-first) and DFS (depth-first)")
+                print("numbering schemes across different graph types.")
+                print("\nTests: Complete, Star, Path, Hypercube, Petersen,")
+                print("       Torus Grid, Triangular Lattice")
+                print("\nThis may take 1-2 minutes...")
+                print("=" * 70 + "\n")
+
+                result = subprocess.run(
+                    ["python3", "compare_bfs_dfs_numbering.py"],
+                    cwd=str(base_dir),
+                    capture_output=False
+                )
+
+                if result.returncode == 0:
+                    print("\n✓ Analysis complete!")
+                    print("Results saved to: analysis/bfs_dfs_comparison.png")
+                else:
+                    print("\n⚠️  Analysis encountered an error.")
+
+            elif choice == 3:
+                print("\n" + "=" * 70)
+                print("CONFIDENCE INTERVALS")
+                print("=" * 70)
+                print("\nCalculates prediction uncertainty using error propagation.")
+                print("\nShows 68%, 95%, and 99% confidence intervals for")
+                print("formula predictions across all layers.")
+                print("\nRunning analysis...")
+                print("=" * 70 + "\n")
+
+                result = subprocess.run(
+                    ["python3", "calculate_confidence_intervals.py"],
+                    cwd=str(base_dir),
+                    capture_output=False
+                )
+
+                if result.returncode == 0:
+                    print("\n✓ Analysis complete!")
+                else:
+                    print("\n⚠️  Analysis encountered an error.")
+
+            elif choice == 4:
+                print("\n" + "=" * 70)
+                print("VISUALIZE FORMULA SYSTEM")
+                print("=" * 70)
+                print("\nGenerates comprehensive 6-panel visualization showing:")
+                print("  - Coefficient formulas across dimensions")
+                print("  - Validation errors")
+                print("  - Confidence intervals")
+                print("  - Predicted vs actual comparison")
+                print("\nGenerating visualization...")
+                print("=" * 70 + "\n")
+
+                result = subprocess.run(
+                    ["python3", "visualize_formula_system.py"],
+                    cwd=str(base_dir),
+                    capture_output=False
+                )
+
+                if result.returncode == 0:
+                    print("\n✓ Visualization generated!")
+                    print("Saved to: analysis/general_formula_system.png")
+                else:
+                    print("\n⚠️  Visualization encountered an error.")
+
+            elif choice == 5:
+                print("\n" + "=" * 70)
+                print("VALIDATE FORMULAS")
+                print("=" * 70)
+                print("\nValidates formula predictions against all experimental data.")
+                print("\nComputes errors by dimension and generates validation report.")
+                print("\nRunning validation...")
+                print("=" * 70 + "\n")
+
+                result = subprocess.run(
+                    ["python3", "validate_split_formula.py"],
+                    cwd=str(base_dir),
+                    capture_output=False
+                )
+
+                if result.returncode == 0:
+                    print("\n✓ Validation complete!")
+                else:
+                    print("\n⚠️  Validation encountered an error.")
+
+            elif choice == 6:
+                print("\n" + "=" * 70)
+                print("LAYER EXCLUSION ANALYSIS")
+                print("=" * 70)
+                print("\nAnalyzes impact of excluding Layer 1 (immediate neighbors)")
+                print("from deviation analysis.")
+                print("\nCompares R² values and formula quality with/without Layer 1.")
+                print("\nThis may take 1-2 minutes...")
+                print("=" * 70 + "\n")
+
+                result = subprocess.run(
+                    ["python3", "compare_layer1_exclusion.py"],
+                    cwd=str(base_dir),
+                    capture_output=False
+                )
+
+                if result.returncode == 0:
+                    print("\n✓ Analysis complete!")
+                    print("Results saved to: analysis/layer1_exclusion/")
+                else:
+                    print("\n⚠️  Analysis encountered an error.")
+
+        except FileNotFoundError:
+            print("\n⚠️  Error: Python3 not found or script missing.")
+            print("Please ensure Python 3 is installed and scripts are present.")
+        except Exception as e:
+            print(f"\n⚠️  Error: {str(e)}")
+
+        input("\nPress Enter to continue...")
+
+
 def show_help():
     """Display help and documentation."""
     print("\n" + "=" * 70)
@@ -1229,10 +1634,10 @@ For more information, visit:
 def show_about():
     """Display about information."""
     print("\n" + "=" * 70)
-    print("ABOUT DFS GRAPH ANALYZER")
+    print("ABOUT RANDOM DFS GRAPH ANALYZER")
     print("=" * 70)
     print("""
-DFS Graph Analyzer v0.1.0
+Random DFS Graph Analyzer v0.6.0
 
 A tool for empirically analyzing DFS behavior on symmetric
 regular graphs using randomized depth-first search.
@@ -1268,16 +1673,18 @@ def main():
 
     while True:
         print_menu()
-        choice = get_user_choice([1, 2, 3, 4])
+        choice = get_user_choice([1, 2, 3, 4, 5])
 
         if choice == 1:
             run_new_experiment()
         elif choice == 2:
-            show_help()
+            analysis_tools_menu()
         elif choice == 3:
-            show_about()
+            show_help()
         elif choice == 4:
-            print("\nThank you for using DFS Graph Analyzer!")
+            show_about()
+        elif choice == 5:
+            print("\nThank you for using the Random DFS Graph Analyzer!")
             print("Goodbye!\n")
             sys.exit(0)
 

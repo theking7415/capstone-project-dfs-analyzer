@@ -6,7 +6,7 @@ from typing import Callable, Optional
 
 import numpy as np
 
-from dfs_analyzer.core.graphs import Hypercube, GeneralizedPetersen, TriangularLattice, TorusGrid, HexagonalLattice, CompleteGraph, NDGrid
+from dfs_analyzer.core.graphs import Hypercube, GeneralizedPetersen, TriangularLattice, TorusGrid, HexagonalLattice, CompleteGraph, NDGrid, RandomRegularGraph
 from dfs_analyzer.core.gnp_graph import ErdosRenyiGraph, generate_connected_gnp
 from dfs_analyzer.core.rdfs import collect_statistics, get_summary_stats
 from dfs_analyzer.experiments.config import ExperimentConfig
@@ -118,8 +118,13 @@ class ExperimentRunner:
             # Generates connected G(n,p) graph with retry mechanism
             print(f"Generating connected G({config.dimension}, {config.gnp_p:.3f}) graph...")
             return generate_connected_gnp(config.dimension, config.gnp_p, rng_seed=config.rng_seed)
+        elif config.graph_type == "randomreg":
+            # Generates random d-regular graph
+            # dimension = n (number of vertices), petersen_k = d (degree)
+            print(f"Generating random {config.petersen_k}-regular graph with {config.dimension} vertices...")
+            return RandomRegularGraph(n=config.dimension, degree=config.petersen_k, seed=config.rng_seed)
         else:
             raise ValueError(
                 f"Unsupported graph type: {config.graph_type}. "
-                f"Currently supported: hypercube, petersen, triangular, torus, hexagonal, complete, ndgrid, gnp"
+                f"Currently supported: hypercube, petersen, triangular, torus, hexagonal, complete, ndgrid, gnp, randomreg"
             )

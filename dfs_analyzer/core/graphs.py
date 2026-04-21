@@ -1350,3 +1350,136 @@ class NDGrid(Graph[NDGridVertexType]):
     def __repr__(self) -> str:
         """Returns string representation."""
         return f"NDGrid(dimension={self.dimension}, size={self.size}, vertices={self.number_vertices()}, degree={2*self.dimension})"
+
+# Type alias for Random Regular Graph vertices
+RandomRegularGraphVertexType = int
+
+
+class RandomRegularGraph(Graph[RandomRegularGraphVertexType]):
+    """
+    Random d-regular graph where every vertex has exactly degree d.
+    
+    Uses the configuration model to generate a random graph with uniform
+    degree distribution. This provides a baseline for comparing structured
+    graphs (hypercube, lattices) against random graphs with the same degree.
+    
+    Properties:
+    - n vertices labeled 0 to n-1
+    - Every vertex has exactly degree d
+    - Random structure (not geometric/lattice-based)
+    - Generated using NetworkX configuration model
+    - Reproducible with fixed seed
+    
+    Note: n*d must be even (required for d-regular graphs)
+    """
+    
+    def __init__(self, n: int, degree: int, seed: int = 1832479182):
+        """
+        Initializes random d-regular graph.
+        
+        Args:
+            n: Number of vertices
+            degree: Degree of each vertex (d)
+            seed: Random seed for reproducibility
+            
+        Raises:
+            ValueError: If n*degree is odd or graph cannot be generated
+        """
+        if n * degree % 2 != 0:
+            raise ValueError(f"n*degree must be even. Got n={n}, degree={degree}, product={n*degree}")
+        if degree >= n:
+            raise ValueError(f"Degree {degree} must be less than number of vertices {n}")
+        
+        self.n = n
+        self.degree = degree
+        self.seed = seed
+        
+        # Generates random d-regular graph using NetworkX
+        try:
+            import networkx as nx
+            self._nx_graph = nx.random_regular_graph(d=degree, n=n, seed=seed)
+            
+            # Converts to adjacency dictionary for fast lookup
+            self._adj_dict = {v: list(self._nx_graph.neighbors(v)) for v in self._nx_graph.nodes()}
+            
+        except ImportError:
+            raise ImportError("NetworkX is required for RandomRegularGraph. Install with: pip install networkx")
+        except Exception as e:
+            raise ValueError(f"Failed to generate {degree}-regular graph with {n} vertices: {e}")
+    
+    def get_start_vertex(self) -> RandomRegularGraphVertexType:
+        """Returns starting vertex (vertex 0)."""
+        return 0
+    
+    def get_adj_list(self, v: RandomRegularGraphVertexType) -> list[RandomRegularGraphVertexType]:
+        """
+        Returns neighbors of vertex v.
+        
+        Args:
+            v: Current vertex (0 to n-1)
+            
+        Returns:
+            List of exactly d neighbors
+        """
+        return self._adj_dict[v]
+    
+    def number_vertices(self) -> int:
+        """Returns number of vertices."""
+        return self.n
+    
+    def plot_means_vars(self, summary_stats, *, fname=None):
+        """
+        Creates visualization of average discovery numbers.
+        
+        For random regular graphs, uses simple bar chart with vertex indices.
+        """
+        import matplotlib.pyplot as plt
+        import numpy as np
+        
+        # Extracts data
+        vertices = sorted(summary_stats.keys())
+        means = [summary_stats[v].mean for v in vertices]
+        variances = [summary_stats[v].variance for v in vertices]
+        stds = [np.sqrt(var) for var in variances]
+        
+        # Calculates expected value
+        n = self.number_vertices()
+        expected = (n - 1) / 2
+        
+        # Creates figure
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
+        
+        # Plot 1: Mean discovery numbers
+        x_pos = np.arange(len(vertices))
+        ax1.bar(x_pos, means, alpha=0.7, color='mediumpurple', edgecolor='black')
+        ax1.axhline(y=expected, color='red', linestyle='--', linewidth=2, 
+                    label=f'Expected (n-1)/2 = {expected:.1f}')
+        ax1.set_xlabel('Vertex', fontsize=12, fontweight='bold')
+        ax1.set_ylabel('Average Discovery Number', fontsize=12, fontweight='bold')
+        ax1.set_title(f'Random {self.degree}-Regular Graph (n={n}): Mean Discovery Numbers', 
+                     fontsize=14, fontweight='bold')
+        ax1.legend()
+        ax1.grid(True, alpha=0.3)
+        
+        # Plot 2: Standard deviations
+        ax2.bar(x_pos, stds, alpha=0.7, color='coral', edgecolor='black')
+        ax2.set_xlabel('Vertex', fontsize=12, fontweight='bold')
+        ax2.set_ylabel('Standard Deviation', fontsize=12, fontweight='bold')
+        ax2.set_title('Discovery Number Variability', fontsize=14, fontweight='bold')
+        ax2.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        
+        # Saves figure if filename provided
+        if fname:
+            fig.savefig(fname, dpi=150, bbox_inches='tight')
+        
+        return fig
+
+    def desc(self) -> str:
+        """Returns short description for file naming."""
+        return f"randomreg-n{self.n}-d{self.degree}"
+
+    def __repr__(self) -> str:
+        """Returns string representation."""
+        return f"RandomRegularGraph(n={self.n}, degree={self.degree}, edges={self.n*self.degree//2})"

@@ -1,0 +1,9 @@
+# Random DFS Graph Analyzer — Desktop Requirements
+# Install with: pip install -r requirements_desktop.txt
+
+PyQt6>=6.4.0
+matplotlib>=3.6.0
+numpy>=1.23.0
+scipy>=1.9.0
+pandas>=1.5.0
+networkx>=2.8.0
